@@ -1,0 +1,146 @@
+{
+    "title": "COMPLIT Super App",
+    "widgets": [
+        {
+            "type": "app_header",
+            "app_name": "COMPLIT Super App"
+        },
+        {
+            "type": "search_bar",
+            "hint": "Search anything...",
+            "api": "https://yourbackend.com/api/search"
+        },
+        {
+            "type": "horizontal_list",
+            "title": "Available Locations",
+            "style": {
+                "shape": "circle",
+                "height": 100,
+                "width": 100
+            },
+            "items": [
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://placehold.co/600x600?text=Guwahati",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/location/guwahati"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Dibrugarh",
+                    "image": "https://placehold.co/600x600?text=Dibrugarh",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/location/dibrugarh"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Silchar",
+                    "image": "https://placehold.co/600x600?text=Silchar",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/location/silchar"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "horizontal_list",
+            "title": "Categories",
+            "style": {
+                "shape": "circle",
+                "height": 100,
+                "width": 100
+            },
+            "items": [
+                {
+                    "type": "category",
+                    "title": "Education",
+                    "image": "https://placehold.co/600x600?text=Education",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/category/education"
+                    }
+                },
+                {
+                    "type": "category",
+                    "title": "Technology",
+                    "image": "https://placehold.co/600x600?text=Technology",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/category/technology"
+                    }
+                },
+                {
+                    "type": "category",
+                    "title": "Healthcare",
+                    "image": "https://placehold.co/600x600?text=Healthcare",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/category/healthcare"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "carousel",
+            "title": "Highlights",
+            "images": [
+                "https://placehold.co/800x400?text=Banner+1",
+                "https://placehold.co/800x400?text=Banner+2",
+                "https://placehold.co/800x400?text=Banner+3"
+            ]
+        },
+        {
+            "type": "grid",
+            "title": "Expert Categories",
+            "columns": 2,
+            "style": {
+                "border_radius": 20,
+                "button_label": "Explore"
+            },
+            "items": [
+                {
+                    "type": "expert",
+                    "title": "Architects",
+                    "image": "https://placehold.co/400x400?text=Architects",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/expert/architects"
+                    }
+                },
+                {
+                    "type": "expert",
+                    "title": "Designers",
+                    "image": "https://placehold.co/400x400?text=Designers",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/expert/designers"
+                    }
+                },
+                {
+                    "type": "expert",
+                    "title": "Consultants",
+                    "image": "https://placehold.co/400x400?text=Consultants",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/expert/consultants"
+                    }
+                },
+                {
+                    "type": "expert",
+                    "title": "Developers",
+                    "image": "https://placehold.co/400x400?text=Developers",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://yourbackend.com/api/expert/developers"
+                    }
+                }
+            ]
+        }
+    ]
+}
