@@ -17,69 +17,91 @@ class HorizontalListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = (widgetData['items'] as List<dynamic>?) ?? [];
-    final height = (widgetData['height'] as num?)?.toDouble() ?? 120.0;
-    final imageSize = height - 30;
+    final height = (widgetData['height'] as num?)?.toDouble() ?? 140.0;
+    final imageSize = height - 40;
+    final title = (widgetData['title'] ?? '').toString().trim();
 
-    return SizedBox(
-      height: height,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: items.length,
-        itemBuilder: (ctx, i) {
-          final map = items[i] as Map<String, dynamic>;
-          final img = map['image']?.toString() ?? '';
-          final title = (map['title'] ?? '').toString();
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: SizedBox(
-              width: imageSize + 20,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ClipOval(
-                    child: FutureBuilder<bool>(
-                      future: _isSvgImage(img),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return _placeholder(size: imageSize);
-                        }
-                        final isSvg = snapshot.data ?? false;
-                        return isSvg
-                            ? SvgPicture.network(
-                                img,
-                                width: imageSize,
-                                height: imageSize,
-                                fit: BoxFit.cover,
-                                placeholderBuilder: (context) =>
-                                    _placeholder(size: imageSize),
-                              )
-                            : Image.network(
-                                img,
-                                width: imageSize,
-                                height: imageSize,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    _errorIcon(size: imageSize),
-                              );
-                      },
-                    ),
-                  ),
-                  if (title.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        title,
-                        style: const TextStyle(fontSize: 13),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 8, bottom: 6),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          );
-        },
+          SizedBox(
+            height: height,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              itemBuilder: (ctx, i) {
+                final map = items[i] as Map<String, dynamic>;
+                final img = map['image']?.toString() ?? '';
+                final itemTitle = (map['title'] ?? '').toString();
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(
+                    width: imageSize + 20,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ClipOval(
+                          child: FutureBuilder<bool>(
+                            future: _isSvgImage(img),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return _placeholder(size: imageSize);
+                              }
+                              final isSvg = snapshot.data ?? false;
+                              return isSvg
+                                  ? SvgPicture.network(
+                                      img,
+                                      width: imageSize,
+                                      height: imageSize,
+                                      fit: BoxFit.cover,
+                                      placeholderBuilder: (context) =>
+                                          _placeholder(size: imageSize),
+                                    )
+                                  : Image.network(
+                                      img,
+                                      width: imageSize,
+                                      height: imageSize,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              _errorIcon(size: imageSize),
+                                    );
+                            },
+                          ),
+                        ),
+                        if (itemTitle.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              itemTitle,
+                              style: const TextStyle(fontSize: 13),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

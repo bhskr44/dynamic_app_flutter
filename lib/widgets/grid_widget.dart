@@ -17,60 +17,85 @@ class GridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final title = widgetData['title']?.toString();
     final items = (widgetData['items'] as List<dynamic>?) ?? [];
     final columns = (widgetData['columns'] as num?)?.toInt() ?? 2;
     final aspectRatio = (widgetData['aspectRatio'] as num?)?.toDouble() ?? 0.8;
+    final style = widgetData['style'] as Map<String, dynamic>? ?? {};
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: columns,
-      crossAxisSpacing: 8,
-      mainAxisSpacing: 8,
-      childAspectRatio: aspectRatio,
-      children: items.map((it) {
-        final map = it as Map<String, dynamic>;
-        final img = map['image']?.toString() ?? '';
-        final title = map['title']?.toString() ?? '';
-        final action = map['action'] as Map<String, dynamic>?;
+    final borderRadius =
+        (style['border_radius'] as num?)?.toDouble() ?? 8.0;
+    final buttonLabel =
+        style['button_label']?.toString() ?? 'Open';
 
-        return Card(
-          clipBehavior: Clip.hardEdge,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: _SmartImage(url: img),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
-                child: ElevatedButton(
-                  onPressed: action != null
-                      ? () => ActionsHandler.handle(
-                            action,
-                            context,
-                            parentRefresh: onNavigateRefresh,
-                          )
-                      : null,
-                  child: const Text('Open'),
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null && title.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
           ),
-        );
-      }).toList(),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: columns,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: aspectRatio,
+          children: items.map((it) {
+            final map = it as Map<String, dynamic>;
+            final img = map['image']?.toString() ?? '';
+            final title = map['title']?.toString() ?? '';
+            final action = map['action'] as Map<String, dynamic>?;
+
+            return Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      child: _SmartImage(url: img),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
+                    child: ElevatedButton(
+                      onPressed: action != null
+                          ? () => ActionsHandler.handle(
+                                action,
+                                context,
+                                parentRefresh: onNavigateRefresh,
+                              )
+                          : null,
+                      child: Text(buttonLabel),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
