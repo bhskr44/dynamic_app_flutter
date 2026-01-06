@@ -1,0 +1,59 @@
+{
+    "title": "Login",
+    "display_title": false,
+    "widgets": [
+        {
+            "type": "text",
+            "value": "Welcome Back!",
+            "fontSize": 32,
+            "bold": true
+        },
+        {
+            "type": "text",
+            "value": "Sign in to continue",
+            "fontSize": 16
+        },
+        {
+            "type": "form",
+            "fields": [
+                {
+                    "type": "email",
+                    "key": "email",
+                    "label": "Email",
+                    "placeholder": "Enter your email",
+                    "required": true
+                },
+                {
+                    "type": "password",
+                    "key": "password",
+                    "label": "Password",
+                    "placeholder": "Enter your password",
+                    "required": true,
+                    "obscure": true
+                },
+                {
+                    "type": "checkbox",
+                    "key": "remember_me",
+                    "label": "Remember me"
+                }
+            ],
+            "submit_label": "Login",
+            "submit_action": {
+                "type": "login",
+                "api": "https://yourbackend.com/api/login",
+                "method": "POST",
+                "navigate_to": "https://yourbackend.com/api/home-screen"
+            }
+        },
+        {
+            "type": "button",
+            "label": "Forgot Password?",
+            "style": "secondary",
+            "full_width": false,
+            "action": {
+                "type": "navigate",
+                "api": "https://yourbackend.com/api/forgot-password"
+            }
+        }
+    ]
+}

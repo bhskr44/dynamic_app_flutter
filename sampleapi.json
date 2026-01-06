@@ -8,7 +8,7 @@
         {
             "type": "search_bar",
             "hint": "Search anything...",
-            "api": "https://yourbackend.com/api/search"
+            "api": "https://app.efficientexams.com/api/get-second-screen"
         },
         {
             "type": "horizontal_list",
@@ -22,28 +22,91 @@
                 {
                     "type": "location",
                     "title": "Guwahati",
-                    "image": "https://placehold.co/600x600?text=Guwahati",
+                    "image": "https://picsum.photos/200/300",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/location/guwahati"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://picsum.photos/200/300",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://picsum.photos/200/300",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://picsum.photos/200/300",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://picsum.photos/200/300",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://picsum.photos/200/300",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://picsum.photos/200/300",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
+                    }
+                },
+                {
+                    "type": "location",
+                    "title": "Guwahati",
+                    "image": "https://picsum.photos/200/300",
+                    "action": {
+                        "type": "navigate",
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 },
                 {
                     "type": "location",
                     "title": "Dibrugarh",
-                    "image": "https://placehold.co/600x600?text=Dibrugarh",
+                    "image": "https://picsum.photos/200/300",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/location/dibrugarh"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 },
                 {
                     "type": "location",
                     "title": "Silchar",
-                    "image": "https://placehold.co/600x600?text=Silchar",
+                    "image": "https://picsum.photos/200/300",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/location/silchar"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 }
             ]
@@ -60,28 +123,28 @@
                 {
                     "type": "category",
                     "title": "Education",
-                    "image": "https://placehold.co/600x600?text=Education",
+                    "image": "https://picsum.photos/300/300",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/category/education"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 },
                 {
                     "type": "category",
                     "title": "Technology",
-                    "image": "https://placehold.co/600x600?text=Technology",
+                    "image": "https://picsum.photos/300/300",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/category/technology"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 },
                 {
                     "type": "category",
                     "title": "Healthcare",
-                    "image": "https://placehold.co/600x600?text=Healthcare",
+                    "image": "https://picsum.photos/300/300",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/category/healthcare"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 }
             ]
@@ -89,10 +152,16 @@
         {
             "type": "carousel",
             "title": "Highlights",
-            "images": [
-                "https://placehold.co/800x400?text=Banner+1",
-                "https://placehold.co/800x400?text=Banner+2",
-                "https://placehold.co/800x400?text=Banner+3"
+            "items": [
+                {
+                    "image": "https://picsum.photos/800/400"
+                },
+                {
+                    "image": "https://picsum.photos/800/400"
+                },
+                {
+                    "image": "https://picsum.photos/800/400"
+                }
             ]
         },
         {
@@ -107,37 +176,37 @@
                 {
                     "type": "expert",
                     "title": "Architects",
-                    "image": "https://placehold.co/400x400?text=Architects",
+                    "image": "https://picsum.photos/400/400",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/expert/architects"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 },
                 {
                     "type": "expert",
                     "title": "Designers",
-                    "image": "https://placehold.co/400x400?text=Designers",
+                    "image": "https://picsum.photos/400/400",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/expert/designers"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 },
                 {
                     "type": "expert",
                     "title": "Consultants",
-                    "image": "https://placehold.co/400x400?text=Consultants",
+                    "image": "https://picsum.photos/400/400",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/expert/consultants"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 },
                 {
                     "type": "expert",
                     "title": "Developers",
-                    "image": "https://placehold.co/400x400?text=Developers",
+                    "image": "https://picsum.photos/400/400",
                     "action": {
                         "type": "navigate",
-                        "api": "https://yourbackend.com/api/expert/developers"
+                        "api": "https://app.efficientexams.com/api/get-second-screen"
                     }
                 }
             ]
