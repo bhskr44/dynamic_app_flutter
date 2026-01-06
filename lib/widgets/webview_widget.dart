@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart' as webview;
 
-class WebViewWidget extends StatefulWidget {
+class DynamicWebViewWidget extends StatefulWidget {
   final Map<String, dynamic> widgetData;
 
-  const WebViewWidget({super.key, required this.widgetData});
+  const DynamicWebViewWidget({super.key, required this.widgetData});
 
   @override
-  State<WebViewWidget> createState() => _WebViewWidgetState();
+  State<DynamicWebViewWidget> createState() => _DynamicWebViewWidgetState();
 }
 
-class _WebViewWidgetState extends State<WebViewWidget> {
-  late final WebViewController _controller;
+class _DynamicWebViewWidgetState extends State<DynamicWebViewWidget> {
+  late final webview.WebViewController _controller;
   bool _isLoading = true;
 
   @override
@@ -25,20 +25,20 @@ class _WebViewWidgetState extends State<WebViewWidget> {
     final html = widget.widgetData['html']?.toString();
     final javaScriptEnabled = widget.widgetData['javascript_enabled'] ?? true;
 
-    _controller = WebViewController()
+    _controller = webview.WebViewController()
       ..setJavaScriptMode(
-        javaScriptEnabled ? JavaScriptMode.unrestricted : JavaScriptMode.disabled,
+        javaScriptEnabled ? webview.JavaScriptMode.unrestricted : webview.JavaScriptMode.disabled,
       )
       ..setBackgroundColor(Colors.white)
       ..setNavigationDelegate(
-        NavigationDelegate(
+        webview.NavigationDelegate(
           onPageStarted: (String url) {
             setState(() => _isLoading = true);
           },
           onPageFinished: (String url) {
             setState(() => _isLoading = false);
           },
-          onWebResourceError: (WebResourceError error) {
+          onWebResourceError: (webview.WebResourceError error) {
             setState(() => _isLoading = false);
           },
         ),
@@ -68,7 +68,7 @@ class _WebViewWidgetState extends State<WebViewWidget> {
           borderRadius: BorderRadius.circular(16),
           child: Stack(
             children: [
-              WebViewWidget(controller: _controller),
+              webview.WebViewWidget(controller: _controller),
               if (_isLoading)
                 Container(
                   color: const Color(0xFFF8FAFC),

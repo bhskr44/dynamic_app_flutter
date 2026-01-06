@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../core/permission_service.dart';
 
 class MapWidget extends StatefulWidget {
   final Map<String, dynamic> widgetData;
@@ -58,15 +60,15 @@ class _MapWidgetState extends State<MapWidget> {
         return;
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          return;
-        }
-      }
+      // Request location permission with user-friendly dialog
+      final hasPermission = await PermissionService.requestPermissionWithDialog(
+        context: context,
+        permission: Permission.location,
+        title: 'Location Permission',
+        message: 'This app needs access to your location to show it on the map.',
+      );
 
-      if (permission == LocationPermission.deniedForever) {
+      if (!hasPermission) {
         return;
       }
 

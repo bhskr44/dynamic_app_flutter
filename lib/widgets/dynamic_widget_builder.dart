@@ -19,9 +19,10 @@ import 'variant_selector_widget.dart';
 import 'rating_widget.dart';
 import 'image_picker_widget.dart';
 import 'video_player_widget.dart';
-import 'webview_widget.dart';
+import 'webview_widget.dart' show DynamicWebViewWidget;
 import 'date_time_picker_widget.dart';
-import 'qr_scanner_widget.dart';
+import 'qr_scanner_widget.dart'
+    if (dart.library.html) 'qr_scanner_widget_web.dart';
 import 'chart_widget.dart';
 import 'map_widget.dart';
 import 'pdf_viewer_widget.dart';
@@ -80,7 +81,7 @@ class DynamicWidgetBuilder {
         return VideoPlayerWidget(widgetData: widgetData);
 
       case 'webview':
-        return WebViewWidget(widgetData: widgetData);
+        return DynamicWebViewWidget(widgetData: widgetData);
 
       case 'date_picker':
       case 'time_picker':

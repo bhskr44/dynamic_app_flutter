@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:permission_handler/permission_handler.dart';
+import '../core/permission_service.dart';
 
 class ImagePickerWidget extends StatefulWidget {
   final Map<String, dynamic> widgetData;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../core/permission_service.dart';
 
 class QRScannerWidget extends StatefulWidget {
   final Map<String, dynamic> widgetData;
@@ -13,7 +15,7 @@ class QRScannerWidget extends StatefulWidget {
 
 class _QRScannerWidgetState extends State<QRScannerWidget> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? controller;
+  dynamic controller; // Use dynamic to avoid type errors on web
   String? scannedData;
   bool _isScanning = false;
 
@@ -23,27 +25,21 @@ class _QRScannerWidgetState extends State<QRScannerWidget> {
     super.dispose();
   }
 
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        scannedData = scanData.code;
-        _isScanning = false;
-      });
-      controller.pauseCamera();
-    });
+  void _onQRViewCreated(dynamic controller) {
+    // QR scanner not available - should never be called
   }
 
-  void _startScanning() {
-    setState(() {
-      _isScanning = true;
-      scannedData = null;
-    });
-    controller?.resumeCamera();
+  Future<void> _startScanning() async {
+    // QR scanner not available on web - show message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('QR Scanner not available on this platform')),
+      );
+    }
   }
 
   void _toggleFlash() {
-    controller?.toggleFlash();
+    // QR scanner not available
   }
 
   @override
@@ -76,7 +72,55 @@ class _QRScannerWidgetState extends State<QRScannerWidget> {
       );
     }
 
-    // Scanner mode
+    // QR Scanner mode - not supported on web
+    if (kIsWeb) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.qr_code_scanner,
+                  size: 80,
+                  color: Color(0xFF94A3B8),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'QR Scanner Not Available',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    'QR code scanning is only available on mobile devices.\nPlease use the mobile app to scan QR codes.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Scanner mode for mobile
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Container(
@@ -124,21 +168,11 @@ class _QRScannerWidgetState extends State<QRScannerWidget> {
                     ),
                   ),
                 ),
-              if (_isScanning)
+              if (_isScanning && !kIsWeb)
                 Expanded(
                   child: Stack(
                     children: [
-                      QRView(
-                        key: qrKey,
-                        onQRViewCreated: _onQRViewCreated,
-                        overlay: QrScannerOverlayShape(
-                          borderColor: const Color(0xFF3B82F6),
-                          borderRadius: 10,
-                          borderLength: 30,
-                          borderWidth: 10,
-                          cutOutSize: 250,
-                        ),
-                      ),
+                      _buildQRView(),
                       Positioned(
                         bottom: 16,
                         right: 16,
@@ -219,5 +253,26 @@ class _QRScannerWidgetState extends State<QRScannerWidget> {
         ),
       ),
     );
+  }
+
+  // Build QR view - only for non-web platforms
+  Widget _buildQRView() {
+    // This should never be called on web due to the if check in build()
+    // But if it is, return empty widget
+    assert(!kIsWeb, 'QR Scanner should not be used on web platform');
+    
+    // Use dynamic to avoid compile-time errors on web
+    final qrView = QRView(
+      key: qrKey,
+      onQRViewCreated: _onQRViewCreated,
+      overlay: QrScannerOverlayShape(
+        borderColor: const Color(0xFF3B82F6),
+        borderRadius: 10,
+        borderLength: 30,
+        borderWidth: 10,
+        cutOutSize: 250,
+      ),
+    );
+    return qrView;
   }
 }
