@@ -56,5 +56,11 @@
 	<string>This app needs microphone access for video recording.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>This app needs access to your contacts.</string>
+	<!-- Allow HTTP connections -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

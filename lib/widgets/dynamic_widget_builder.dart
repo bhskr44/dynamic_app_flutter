@@ -8,6 +8,7 @@ import '../utils/actions_handler.dart';
 import 'app_header_widget.dart';
 import 'search_bar_widget.dart';
 import 'horizontal_list_widget.dart';
+import 'vertical_list_widget.dart';
 import 'carousel_widget.dart';
 import 'grid_widget.dart';
 import 'form_widget.dart';
@@ -44,6 +45,9 @@ class DynamicWidgetBuilder {
 
       case 'horizontal_list':
         return HorizontalListWidget(widgetData: widgetData, onNavigateRefresh: onNavigateRefresh);
+
+      case 'vertical_list':
+        return VerticalListWidget(widgetData: widgetData, onNavigateRefresh: onNavigateRefresh);
 
       case 'carousel':
         return CarouselWidget(widgetData: widgetData, onNavigateRefresh: onNavigateRefresh);
@@ -130,8 +134,6 @@ class DynamicWidgetBuilder {
           onNavigateRefresh: onNavigateRefresh,
         );
 
-      case 'horizontal_list':
-      case 'vertical_list':
       case 'grid':
         return DynamicListBuilder.buildList(widgetData, context, onNavigateRefresh: onNavigateRefresh);
 

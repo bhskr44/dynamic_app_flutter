@@ -33,6 +33,9 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final hint = widget.widgetData['hint']?.toString();
+    final hintText = hint != null && hint.isNotEmpty ? hint : 'Search';
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: AnimatedContainer(
@@ -67,7 +70,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                   color: const Color(0xFF94A3B8),
                 )
               : null,
-            hintText: 'Search for anything...',
+            hintText: hintText,
             hintStyle: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 15,

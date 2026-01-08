@@ -1,7 +1,9 @@
 // filepath: lib/main.dart
 import 'package:flutter/material.dart';
-import 'screens/dynamic_screen.dart';
+import 'screens/splash_screen.dart';
 import 'core/cart_service.dart';
+import 'core/api_service.dart';
+import 'core/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,16 +14,48 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // Use local sample JSON by default (or change to an http(s) URL)
-  static const String initialApi = 'https://app.efficientexams.com/api/home-screen';
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // Splash screen API - loads configuration and navigates to home
+  static const String splashApi = 'http://10.177.48.175:8000/api/app-screens/splash-screen';
+  final appConfig = AppConfig();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppConfig();
+  }
+
+  Future<void> _loadAppConfig() async {
+    try {
+      final data = await ApiService.fetchJson(splashApi);
+      final appName = data['app_name']?.toString();
+      final appLogo = data['app_logo']?.toString();
+      
+      if (appName != null && appName.isNotEmpty) {
+        appConfig.setAppTitle(appName);
+      }
+      
+      if (appLogo != null && appLogo.isNotEmpty) {
+        appConfig.setAppLogoUrl(appLogo);
+      }
+      
+      setState(() {}); // Trigger rebuild with new config
+    } catch (e) {
+      // Keep default title if API fails
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dynamic App',
+      title: appConfig.appTitle,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -84,7 +118,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const DynamicScreen(apiUrl: initialApi),
+      home: SplashScreen(apiUrl: splashApi),
     );
   }
 }

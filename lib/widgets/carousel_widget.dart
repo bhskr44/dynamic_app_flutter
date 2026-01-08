@@ -1,6 +1,9 @@
 
 // filepath: lib/widgets/carousel_widget.dart
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../utils/actions_handler.dart';
 
 typedef RefreshCallback = Future<void> Function();
 
@@ -67,7 +70,19 @@ class _CarouselWidgetState extends State<CarouselWidget> {
                           ? Stack(
                               fit: StackFit.expand,
                               children: [
-                                Image.network(img, fit: BoxFit.cover),
+                                CachedNetworkImage(
+                                  imageUrl: img,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Container(
+                                    color: const Color(0xFFF1F5F9),
+                                    child: const Center(child: CircularProgressIndicator()),
+                                  ),
+                                  errorWidget: (context, url, error) => Container(
+                                    color: const Color(0xFFFEF2F2),
+                                    child: const Icon(Icons.broken_image_rounded, size: 48, color: Color(0xFFEF4444)),
+                                  ),
+                                  fadeInDuration: const Duration(milliseconds: 200),
+                                ),
                                 Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(

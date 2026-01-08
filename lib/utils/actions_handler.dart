@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import '../core/api_service.dart';
@@ -75,6 +76,10 @@ class ActionsHandler {
 
       case 'share':
         await _handleShare(action, ctx);
+        break;
+
+      case 'call_phone':
+        await _handleCallPhone(action, ctx);
         break;
 
       case 'call_api':
@@ -275,6 +280,47 @@ class ActionsHandler {
       );
     } catch (e) {
       _showSnack(ctx, 'Failed to share: $e');
+    }
+  }
+
+  static Future<void> _handleCallPhone(Map<String, dynamic> action, BuildContext ctx) async {
+    try {
+      final phoneUrl = action['api']?.toString() ?? '';
+      
+      if (phoneUrl.isEmpty) {
+        _showSnack(ctx, 'No phone number provided');
+        return;
+      }
+
+      // Extract phone number from tel: URL
+      String phoneNumber = phoneUrl;
+      if (phoneUrl.startsWith('tel:')) {
+        phoneNumber = phoneUrl.substring(4);
+      }
+
+      final uri = Uri.parse(phoneUrl.startsWith('tel:') ? phoneUrl : 'tel:$phoneUrl');
+      
+      // Try to launch the phone dialer
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        // If can't launch (web/desktop), copy to clipboard
+        await Clipboard.setData(ClipboardData(text: phoneNumber));
+        _showSnack(ctx, 'Phone number copied to clipboard: $phoneNumber');
+      }
+    } catch (e) {
+      // Fallback: copy to clipboard on any error
+      try {
+        final phoneUrl = action['api']?.toString() ?? '';
+        String phoneNumber = phoneUrl;
+        if (phoneUrl.startsWith('tel:')) {
+          phoneNumber = phoneUrl.substring(4);
+        }
+        await Clipboard.setData(ClipboardData(text: phoneNumber));
+        _showSnack(ctx, 'Phone number copied to clipboard: $phoneNumber');
+      } catch (clipboardError) {
+        _showSnack(ctx, 'Failed to copy phone number');
+      }
     }
   }
 
