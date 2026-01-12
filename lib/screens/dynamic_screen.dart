@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shimmer/shimmer.dart';
 import '../core/api_service.dart';
+import '../core/form_data_manager.dart';
 import '../widgets/dynamic_widget_builder.dart';
 import '../utils/actions_handler.dart';
 
@@ -21,6 +22,7 @@ class _DynamicScreenState extends State<DynamicScreen> {
   bool loading = true;
   String? error;
   late int _shimmerLayout;
+  final FormDataManager _formDataManager = FormDataManager();
 
   @override
   void initState() {
@@ -274,7 +276,13 @@ class _DynamicScreenState extends State<DynamicScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: widgets.map((w) {
                     final map = (w as Map<String, dynamic>);
-                    return DynamicWidgetBuilder.build(map, context, onNavigateRefresh: _loadScreen, screenData: screenData);
+                    return DynamicWidgetBuilder.build(
+                      map, 
+                      context, 
+                      onNavigateRefresh: _loadScreen, 
+                      screenData: screenData,
+                      formDataManager: _formDataManager,
+                    );
                   }).toList(),
                 ),
               ),

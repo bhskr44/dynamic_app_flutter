@@ -22,8 +22,8 @@ class _DynamicWebViewWidgetState extends State<DynamicWebViewWidget> {
 
   void _initializeWebView() {
     final url = widget.widgetData['url']?.toString() ?? '';
-    final html = widget.widgetData['html']?.toString();
-    final javaScriptEnabled = widget.widgetData['javascript_enabled'] ?? true;
+    final html = widget.widgetData['html']?.toString() ?? widget.widgetData['html_content']?.toString();
+    final javaScriptEnabled = widget.widgetData['javascript_enabled'] ?? widget.widgetData['enable_javascript'] ?? true;
 
     _controller = webview.WebViewController()
       ..setJavaScriptMode(

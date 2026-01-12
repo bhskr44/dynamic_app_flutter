@@ -84,8 +84,11 @@ class GridWidget extends StatelessWidget {
               for (var action in actions) {
                 final actionMap = action as Map<String, dynamic>;
                 final type = actionMap['type']?.toString();
-                if (type == 'navigate') {
-                  navigateAction = actionMap;
+                if (type == 'navigate' && navigateAction == null) {
+                  // Only use first navigate action without click_action for card tap
+                  if (!actionMap.containsKey('click_action')) {
+                    navigateAction = actionMap;
+                  }
                 } else if (type == 'button') {
                   buttonAction = actionMap;
                 } else if (type == 'info') {

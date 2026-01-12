@@ -23,9 +23,15 @@ class AuthService {
 
   /// Save auth token
   static Future<void> saveToken(String token) async {
-    _cachedToken = token;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
+    try {
+      print('DEBUG saveToken: saving token length=${token.length}');
+      _cachedToken = token;
+      final prefs = await SharedPreferences.getInstance();
+      final success = await prefs.setString(_tokenKey, token);
+      print('DEBUG saveToken: SharedPreferences.setString returned $success');
+    } catch (e) {
+      print('ERROR saveToken: $e');
+    }
   }
 
   /// Get user data
@@ -66,14 +72,23 @@ class AuthService {
 
   /// Save complete login response (token + user data)
   static Future<void> saveLoginResponse(Map<String, dynamic> response) async {
+    print('DEBUG saveLoginResponse: response=$response');
+    
     // Extract token from various possible keys
     final token = response['token'] ?? 
                   response['access_token'] ?? 
                   response['bearer_token'] ??
                   response['auth_token'];
     
+    print('DEBUG saveLoginResponse: extracted token=$token');
+    
     if (token != null) {
       await saveToken(token.toString());
+      print('DEBUG saveLoginResponse: token saved, verifying...');
+      final verified = await getToken();
+      print('DEBUG saveLoginResponse: verified token=${verified?.substring(0, 20)}...');
+    } else {
+      print('DEBUG saveLoginResponse: NO TOKEN FOUND IN RESPONSE');
     }
 
     // Extract user data if present

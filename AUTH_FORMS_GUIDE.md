@@ -1,6 +1,6 @@
 # Authentication & Forms Guide
 
-Your Flutter app now supports full authentication, form building, and data submission capabilities!
+Your Flutter app now supports full authentication, form building, OTP verification, and data submission capabilities!
 
 ## 🔐 Authentication Features
 
@@ -414,3 +414,159 @@ Your backend should verify this token and return appropriate data or 401 Unautho
     }
 }
 ```
+## Passing Data Between Screens
+
+When navigating between screens, you can pass form field values as query parameters using the `pass_data` parameter in navigate actions.
+
+### Using pass_data Parameter
+
+The `pass_data` parameter accepts an array of field keys from your FormDataManager. These values will be appended as query parameters to the navigation URL.
+
+**Example: OTP Flow**
+
+```json
+{
+    "type": "button",
+    "button_text": "Send OTP",
+    "click_action": {
+        "type": "api_call",
+        "api": "https://yourapi.com/api/send-otp",
+        "method": "POST",
+        "success_action": {
+            "type": "navigate",
+            "api": "https://yourapi.com/api/otp-verification-screen",
+            "pass_data": ["phone"]
+        }
+    }
+}
+```
+
+**Result**: If the user entered "1234567890" in the phone field, the navigation URL becomes:
+```
+https://yourapi.com/api/otp-verification-screen?phone=1234567890
+```
+
+### Complete OTP Authentication Flow Example
+
+Here's a complete example showing how to pass data between screens in an OTP flow:
+
+**Step 1: Phone Number Collection Screen**
+
+```json
+{
+    "widgets": [
+        {
+            "type": "input",
+            "id": "phone_input",
+            "input_type": "phone",
+            "key": "phone",
+            "label": "Phone Number",
+            "icon": "phone",
+            "max_length": 10
+        },
+        {
+            "type": "button",
+            "button_text": "Send OTP",
+            "click_action": {
+                "type": "api_call",
+                "api": "https://yourapi.com/api/send-otp",
+                "method": "POST",
+                "success_action": {
+                    "type": "show_widget",
+                    "widget_id": "otp_input"
+                }
+            }
+        },
+        {
+            "type": "input",
+            "id": "otp_input",
+            "input_type": "number",
+            "key": "otp",
+            "label": "Enter OTP",
+            "icon": "lock",
+            "max_length": 6,
+            "visibility": "hidden"
+        },
+        {
+            "type": "button",
+            "button_text": "Verify & Login",
+            "click_action": {
+                "type": "login",
+                "api": "https://yourapi.com/api/login",
+                "method": "POST",
+                "navigate_to": "https://yourapi.com/api/home",
+                "pass_data": ["phone", "otp"]
+            },
+            "visibility": "hidden",
+            "id": "verify_button"
+        }
+    ]
+}
+```
+
+**Step 2: Navigation to Next Screen with Data**
+
+```json
+{
+    "type": "button",
+    "button_text": "Continue to Profile",
+    "click_action": {
+        "type": "navigate",
+        "api": "https://yourapi.com/api/profile-screen",
+        "pass_data": ["phone", "user_id", "email"]
+    }
+}
+```
+
+**Result**: Creates URL like:
+```
+https://yourapi.com/api/profile-screen?phone=1234567890&user_id=123&email=user@example.com
+```
+
+### Multiple Field Passing
+
+You can pass multiple fields at once:
+
+```json
+{
+    "type": "navigate",
+    "api": "https://yourapi.com/api/checkout",
+    "pass_data": ["product_id", "quantity", "color", "size"]
+}
+```
+
+This is useful for:
+- Passing order details to checkout screens
+- Sending search filters to results pages
+- Carrying user selections across multi-step forms
+- Maintaining context in wizard-style flows
+
+### Resend OTP / Go Back with Data
+
+When you need to navigate back to a previous screen with prefilled data (like resending OTP):
+
+```json
+{
+    "type": "text_button",
+    "text": "Resend OTP",
+    "action": {
+        "type": "navigate",
+        "api": "https://yourapi.com/api/login-screen",
+        "pass_data": ["phone"]
+    }
+}
+```
+
+This will:
+1. Navigate back to the login screen
+2. Pass the phone number as a query parameter
+3. Your server can return the screen with the phone field prefilled
+4. The user can request a new OTP without re-entering their phone number
+
+### Important Notes
+
+- Only fields that exist in FormDataManager will be passed
+- Empty or null values are skipped
+- Values are URL-encoded automatically
+- Works with all navigate actions (button click_action, success_action, etc.)
+- Use `success_action` instead of `navigate_to` in login actions for better control

@@ -37,7 +37,8 @@ class _CarouselWidgetState extends State<CarouselWidget> {
               onPageChanged: (p) => setState(() => _page = p),
               itemBuilder: (ctx, i) {
                 final map = items[i] as Map<String, dynamic>;
-                final img = map['image']?.toString() ?? '';
+                // Support both 'image' and 'url' fields
+                final img = map['image']?.toString() ?? map['url']?.toString() ?? '';
                 return AnimatedBuilder(
                   animation: _ctrl,
                   builder: (context, child) {
