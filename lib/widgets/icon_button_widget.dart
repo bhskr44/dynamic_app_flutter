@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/form_data_manager.dart';
+import '../utils/actions_handler.dart';
 
 class IconButtonWidget extends StatelessWidget {
   final Map<String, dynamic> widgetData;
@@ -13,43 +14,88 @@ class IconButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconName = widgetData['icon']?.toString() ?? 'info';
-    final iconColor = _parseColor(widgetData['icon_color']?.toString()) ?? Colors.blue;
-    final backgroundColor = _parseColor(widgetData['background_color']?.toString()) ?? Colors.blue.withOpacity(0.1);
-    final size = (widgetData['size'] as num?)?.toDouble() ?? 36.0;
-    final borderRadius = (widgetData['border_radius'] as num?)?.toDouble() ?? 18.0;
+    // Support both legacy and new API keys
+    final iconName = widgetData['button_icon']?.toString() ?? widgetData['icon']?.toString() ?? 'info';
+    final iconColor = _parseColor(widgetData['icon_color']?.toString()) ?? Colors.white;
+    final backgroundColor = _parseColor(widgetData['button_color']?.toString()) ?? Colors.blue;
+    final textColor = _parseColor(widgetData['text_color']?.toString()) ?? Colors.white;
+    final borderRadius = (widgetData['border_radius'] as num?)?.toDouble() ?? 8.0;
+    final height = (widgetData['height'] as num?)?.toDouble() ?? 48.0;
     final tooltip = widgetData['tooltip']?.toString();
+    final buttonText = widgetData['button_text']?.toString() ?? '';
     final key = widgetData['key']?.toString();
     final value = widgetData['value']?.toString();
+    final action = widgetData['action'] as Map<String, dynamic>?;
 
     return AnimatedBuilder(
       animation: formDataManager ?? ChangeNotifier(),
       builder: (context, child) {
-        // Check if this button's value matches the current form value
         final currentValue = formDataManager?.getValue(key ?? '');
         final isSelected = currentValue == value;
 
-        Widget button = InkWell(
-          onTap: () {
-            if (key != null && value != null && formDataManager != null) {
-              formDataManager!.setValue(key, value);
-            }
-          },
-          borderRadius: BorderRadius.circular(borderRadius),
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: isSelected ? iconColor.withOpacity(0.2) : backgroundColor,
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: isSelected 
-                  ? Border.all(color: iconColor, width: 2)
-                  : null,
-            ),
-            child: Icon(
-              _getIconData(iconName),
-              color: iconColor,
-              size: size * 0.5,
+        // Alignment logic
+        final alignment = (widgetData['alignment']?.toString() ?? 'center').toLowerCase();
+        MainAxisAlignment rowAlignment;
+        switch (alignment) {
+          case 'left':
+            rowAlignment = MainAxisAlignment.start;
+            break;
+          case 'right':
+            rowAlignment = MainAxisAlignment.end;
+            break;
+          default:
+            rowAlignment = MainAxisAlignment.center;
+        }
+
+
+        Widget button = Container(
+          margin: const EdgeInsets.all(10),
+          width: double.infinity,
+          child: SizedBox(
+            height: height,
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: backgroundColor,
+                foregroundColor: textColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                ),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              onPressed: () {
+                if (action != null) {
+                  ActionsHandler.handle(action, context);
+                } else if (key != null && value != null && formDataManager != null) {
+                  formDataManager!.setValue(key, value);
+                }
+              },
+              child: Row(
+                mainAxisAlignment: () {
+                  switch (alignment) {
+                    case 'left':
+                      return MainAxisAlignment.start;
+                    case 'right':
+                      return MainAxisAlignment.end;
+                    default:
+                      return MainAxisAlignment.center;
+                  }
+                }(),
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(_getIconData(iconName), color: iconColor, size: 22),
+                  const SizedBox(width: 8),
+                  Text(
+                    buttonText,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

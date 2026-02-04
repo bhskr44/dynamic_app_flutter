@@ -41,22 +41,21 @@ class HorizontalLayoutWidget extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.only(bottom: marginBottom),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: mainAxisAlignment,
-          children: items.map((item) {
-            return Padding(
-              padding: EdgeInsets.only(right: spacing),
-              child: DynamicWidgetBuilder.build(
-                item as Map<String, dynamic>,
-                context,
-                onNavigateRefresh: onNavigateRefresh,
-                formDataManager: formDataManager,
-              ),
-            );
-          }).toList(),
-        ),
+      child: Row(
+        mainAxisAlignment: mainAxisAlignment,
+        mainAxisSize: MainAxisSize.min,
+        children: items.asMap().entries.map((entry) {
+          final isLast = entry.key == items.length - 1;
+          return Padding(
+            padding: EdgeInsets.only(right: isLast ? 0 : spacing),
+            child: DynamicWidgetBuilder.build(
+              entry.value as Map<String, dynamic>,
+              context,
+              onNavigateRefresh: onNavigateRefresh,
+              formDataManager: formDataManager,
+            ),
+          );
+        }).toList(),
       ),
     );
   }

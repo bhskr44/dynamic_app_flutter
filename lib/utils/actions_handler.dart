@@ -26,6 +26,22 @@ class ActionsHandler {
 
     switch (type) {
       case 'navigate':
+        if (action['require_auth'] == true) {
+          final isAuth = await AuthService.isAuthenticated();
+          if (!isAuth) {
+            final authFailedAction = action['auth_failed_action'] as Map<String, dynamic>?;
+            if (authFailedAction != null) {
+              final message = authFailedAction['message']?.toString();
+              if (message != null && message.isNotEmpty) {
+                _showSnack(ctx, message);
+              }
+              await handle(authFailedAction, ctx, parentRefresh: parentRefresh, formDataManager: formDataManager);
+            } else {
+              _showSnack(ctx, 'Please login to continue');
+            }
+            return;
+          }
+        }
         final api = action['api']?.toString();
         if (api != null && api.isNotEmpty) {
           String finalUrl = api;
@@ -60,6 +76,22 @@ class ActionsHandler {
         break;
 
       case 'open_url':
+        if (action['require_auth'] == true) {
+          final isAuth = await AuthService.isAuthenticated();
+          if (!isAuth) {
+            final authFailedAction = action['auth_failed_action'] as Map<String, dynamic>?;
+            if (authFailedAction != null) {
+              final message = authFailedAction['message']?.toString();
+              if (message != null && message.isNotEmpty) {
+                _showSnack(ctx, message);
+              }
+              await handle(authFailedAction, ctx, parentRefresh: parentRefresh, formDataManager: formDataManager);
+            } else {
+              _showSnack(ctx, 'Please login to continue');
+            }
+            return;
+          }
+        }
         final url = action['url']?.toString();
         if (url != null && url.isNotEmpty) {
           final uri = Uri.parse(url);
@@ -191,35 +223,64 @@ class ActionsHandler {
 
     final method = (action['method'] ?? 'POST').toString().toUpperCase();
     // Support both 'params' and 'body' for data, merge with form data if available
-    final requestData = (action['params'] ?? action['body']) as Map<String, dynamic>? ?? {};
-    
-    // Merge form data from FormDataManager if available
-    if (formDataManager != null) {
-      requestData.addAll(formDataManager.getAllData());
+    final requestData = Map<String, dynamic>.from(
+        (action['params'] ?? action['body']) as Map<String, dynamic>? ?? {});
+
+    final formValues = formDataManager?.getAllData() ?? {};
+
+    // Resolve {{field}} placeholders inside the request payload
+    _resolveTemplateValues(requestData, formValues);
+
+    // Merge form data from FormDataManager if available (do not overwrite explicit payload values)
+    for (final entry in formValues.entries) {
+      requestData.putIfAbsent(entry.key, () => entry.value);
     }
     
-    print('DEBUG API Call: endpoint=$api, method=$method, data=$requestData');
-    
-    final includeAuth = action['include_auth'] ?? true;
+    // Default: only include auth if explicitly requested or when require_auth is true
+    final includeAuth = action.containsKey('include_auth')
+      ? action['include_auth']
+      : (requireAuth == true);
+
+    final rawHeaders = action['headers'] as Map<String, dynamic>?;
+    Map<String, String>? extraHeaders = rawHeaders?.map((key, value) => MapEntry(key, value.toString()));
+
+    final authToken = action['auth_token']?.toString();
+    if (authToken != null && authToken.isNotEmpty) {
+      extraHeaders ??= <String, String>{};
+      extraHeaders['Authorization'] = authToken.startsWith('Bearer ')
+          ? authToken
+          : 'Bearer $authToken';
+    }
+
+    debugPrint('API Call -> endpoint=$api, method=$method, includeAuth=$includeAuth, data=$requestData');
+    if (extraHeaders != null && extraHeaders.isNotEmpty) {
+      debugPrint('API Call -> headers=$extraHeaders');
+    }
 
     try {
       Map<String, dynamic> resp;
       
       switch (method) {
         case 'POST':
-          resp = await ApiService.postJson(api, requestData, includeAuth: includeAuth);
+          resp = await ApiService.postJson(api, requestData, includeAuth: includeAuth, extraHeaders: extraHeaders);
           break;
         case 'PUT':
-          resp = await ApiService.putJson(api, requestData, includeAuth: includeAuth);
+          resp = await ApiService.putJson(api, requestData, includeAuth: includeAuth, extraHeaders: extraHeaders);
           break;
         case 'PATCH':
-          resp = await ApiService.patchJson(api, requestData, includeAuth: includeAuth);
+          resp = await ApiService.patchJson(api, requestData, includeAuth: includeAuth, extraHeaders: extraHeaders);
           break;
         case 'DELETE':
-          resp = await ApiService.deleteJson(api, includeAuth: includeAuth);
+          resp = await ApiService.deleteJson(api, includeAuth: includeAuth, extraHeaders: extraHeaders);
           break;
         default:
-          resp = await ApiService.fetchJson(api, includeAuth: includeAuth);
+          resp = await ApiService.fetchJson(api, includeAuth: includeAuth, extraHeaders: extraHeaders);
+      }
+
+      // Save auth token/user from API response if present (or explicitly requested)
+      final responseToken = resp['token'] ?? resp['access_token'] ?? resp['bearer_token'] ?? resp['auth_token'];
+      if (action['save_auth'] == true || responseToken != null) {
+        await AuthService.saveLoginResponse(resp);
       }
 
       // Show success message if provided
@@ -248,7 +309,12 @@ class ActionsHandler {
         if (parentRefresh != null) await parentRefresh();
       }
     } catch (e) {
-      final errorMsg = action['error_message']?.toString() ?? 'Action failed: $e';
+      // Show detailed server error to aid debugging
+      final serverMsg = e.toString();
+      final customMsg = action['error_message']?.toString();
+      final errorMsg = customMsg != null && customMsg.isNotEmpty
+          ? '$customMsg ($serverMsg)'
+          : 'Action failed: $serverMsg';
       _showSnack(ctx, errorMsg);
     }
   }
@@ -527,5 +593,29 @@ class ActionsHandler {
 
   static void _showSnack(BuildContext ctx, String message) {
     ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(message)));
+  }
+  static void _resolveTemplateValues(Map<String, dynamic> target, Map<String, dynamic> formValues) {
+    target.updateAll((key, value) => _resolveValue(value, formValues));
+  }
+
+  static dynamic _resolveValue(dynamic value, Map<String, dynamic> formValues) {
+    if (value is String) {
+      var result = value;
+      final matches = RegExp(r'\{\{([^}]+)\}\}').allMatches(value);
+      for (final match in matches) {
+        final placeholder = match.group(0)!;
+        final fieldKey = match.group(1)!.trim();
+        final replacement = formValues[fieldKey]?.toString() ?? '';
+        result = result.replaceAll(placeholder, replacement);
+      }
+      return result;
+    } else if (value is Map<String, dynamic>) {
+      final nested = Map<String, dynamic>.from(value);
+      _resolveTemplateValues(nested, formValues);
+      return nested;
+    } else if (value is List) {
+      return value.map((item) => _resolveValue(item, formValues)).toList();
+    }
+    return value;
   }
 }

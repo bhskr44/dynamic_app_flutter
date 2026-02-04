@@ -55,6 +55,7 @@ class DynamicWidgetBuilder {
     }
   ) {
     final type = (widgetData['type'] ?? '').toString();
+    debugPrint('[DynamicWidgetBuilder] Building widget type: $type');
     final displayTitle = screenData?['display_title'] ?? true;
     final widgetId = widgetData['id']?.toString();
     final visibility = widgetData['visibility']?.toString() ?? 'visible';
@@ -167,6 +168,18 @@ class DynamicWidgetBuilder {
         return VideoPlayerWidget(widgetData: widgetData);
 
       case 'webview':
+        final rawHeight = widgetData['height'];
+
+        if (rawHeight == 'match_parent') {
+          return SizedBox(
+            height: MediaQuery.of(context).size.height
+                - kToolbarHeight
+                - MediaQuery.of(context).padding.top
+                - 60, // bottom nav approx
+            child: DynamicWebViewWidget(widgetData: widgetData),
+          );
+        }
+
         return DynamicWebViewWidget(widgetData: widgetData);
 
       case 'date_picker':
@@ -316,6 +329,7 @@ class DynamicWidgetBuilder {
         );
 
       default:
+        debugPrint('[DynamicWidgetBuilder] Unsupported widget type: $type. Data: $widgetData');
         return const SizedBox.shrink();
     }
   }
@@ -448,8 +462,28 @@ class DynamicWidgetBuilder {
     final url = widgetData['url']?.toString() ?? '';
     if (url.isEmpty) return const SizedBox.shrink();
 
-    final width = (widgetData['width'] as num?)?.toDouble();
-    final height = (widgetData['height'] as num?)?.toDouble();
+    // Handle width
+    double? width;
+    final rawWidth = widgetData['width'];
+    if (rawWidth is num) {
+      width = rawWidth.toDouble();
+    } else if (rawWidth is String && rawWidth == 'match_parent') {
+      width = double.infinity;
+    } else {
+      width = null;
+    }
+
+    // Handle height
+    double? height;
+    final rawHeight = widgetData['height'];
+    if (rawHeight is num) {
+      height = rawHeight.toDouble();
+    } else if (rawHeight is String && rawHeight == 'match_parent') {
+      height = double.infinity;
+    } else {
+      height = null;
+    }
+
     final alignment = widgetData['alignment']?.toString() ?? 'left';
     final marginTop = (widgetData['margin_top'] as num?)?.toDouble() ?? 0.0;
     final marginBottom = (widgetData['margin_bottom'] as num?)?.toDouble() ?? 8.0;

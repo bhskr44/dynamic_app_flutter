@@ -36,17 +36,25 @@ class FbCreatePostFullCardWidget extends StatelessWidget {
           padding: EdgeInsets.all(padding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets.map((widgetConfig) {
-              if (widgetConfig is Map<String, dynamic>) {
-                return DynamicWidgetBuilder.build(
-                  widgetConfig,
-                  context,
-                  onNavigateRefresh: onNavigateRefresh,
-                  formDataManager: formDataManager,
-                );
-              }
-              return const SizedBox.shrink();
-            }).toList(),
+            children: [
+              // DEBUG: Add a visible container to confirm rendering
+              Container(
+                height: 30,
+                color: Colors.redAccent,
+                child: const Center(child: Text('DEBUG: fb_create_post_full_card_widget', style: TextStyle(color: Colors.white))),
+              ),
+              ...widgets.map((widgetConfig) {
+                if (widgetConfig is Map<String, dynamic>) {
+                  return DynamicWidgetBuilder.build(
+                    widgetConfig,
+                    context,
+                    onNavigateRefresh: onNavigateRefresh,
+                    formDataManager: formDataManager,
+                  );
+                }
+                return const SizedBox.shrink();
+              }).toList(),
+            ],
           ),
         ),
       ),

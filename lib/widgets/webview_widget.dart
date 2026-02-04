@@ -53,7 +53,14 @@ class _DynamicWebViewWidgetState extends State<DynamicWebViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = (widget.widgetData['height'] as num?)?.toDouble() ?? 400.0;
+    // Support 'height: match_parent' as full available height
+    double height;
+    final rawHeight = widget.widgetData['height'];
+    if (rawHeight == 'match_parent') {
+      height = MediaQuery.of(context).size.height;
+    } else {
+      height = (rawHeight as num?)?.toDouble() ?? 400.0;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),

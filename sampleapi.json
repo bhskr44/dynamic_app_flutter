@@ -210,6 +210,19 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "icon_button",
+            "button_text": "Orders",
+            "button_icon": "shopping_bag",
+            "button_color": "#3498db",
+            "text_color": "#ffffff",
+            "height": 48,
+            "border_radius": 8,
+            "action": {
+                "type": "navigate",
+                "api": "/api/app-screens/orders"
+            }
         }
     ]
 }

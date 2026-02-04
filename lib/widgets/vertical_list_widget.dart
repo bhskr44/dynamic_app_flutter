@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../utils/actions_handler.dart';
 import '../core/form_data_manager.dart';
@@ -64,8 +65,15 @@ class VerticalListWidget extends StatelessWidget {
 
     // ---------------- DYNAMIC WIDGETS ----------------
     final firstItem = items.first;
-    final hasDynamicType =
-        firstItem is Map<String, dynamic> && firstItem.containsKey('type');
+    final firstType = firstItem is Map<String, dynamic>
+      ? firstItem['type']?.toString().toLowerCase()
+      : null;
+
+    // Only treat as dynamic when the item type is a custom widget (not a legacy
+    // "category" item). Categories should use the legacy list renderer.
+    final hasDynamicType = firstItem is Map<String, dynamic> &&
+      firstItem.containsKey('type') &&
+      firstType != 'category';
 
     if (hasDynamicType) {
       // Special handling: if the first item is a post create section (button + horizontal_layout),
@@ -107,12 +115,93 @@ class VerticalListWidget extends StatelessWidget {
             }, context, onNavigateRefresh: onNavigateRefresh),
           ...items.skip(isCreatePostSection ? 2 : 0).map((item) {
             if (item is Map<String, dynamic>) {
-              return DynamicWidgetBuilder.build(
-                item,
-                context,
-                onNavigateRefresh: onNavigateRefresh,
-                formDataManager: formDataManager,
-              );
+              final type = item['type']?.toString().toLowerCase();
+              if (type == 'vendors') {
+                // Render vendor card
+                final img = item['image']?.toString() ?? '';
+                final itemTitle = (item['title'] ?? '').toString();
+                final description = (item['description'] ?? '').toString();
+                final action = item['action'] as Map<String, dynamic>?;
+                return InkWell(
+                  onTap: action != null
+                      ? () => ActionsHandler.handle(
+                            action,
+                            context,
+                            parentRefresh: onNavigateRefresh,
+                          )
+                      : null,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 4),
+                    constraints: const BoxConstraints(minHeight: 90),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        _buildImageContainer(img, 90, false),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (itemTitle.isNotEmpty)
+                                  Text(
+                                    itemTitle,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF1E293B),
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                if (description.isNotEmpty) ...[
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    description,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (action != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: IconButton(
+                              icon: const Icon(Icons.call, color: Colors.green, size: 20),
+                              onPressed: () => ActionsHandler.handle(action, context, parentRefresh: onNavigateRefresh),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              } else {
+                return DynamicWidgetBuilder.build(
+                  item,
+                  context,
+                  onNavigateRefresh: onNavigateRefresh,
+                  formDataManager: formDataManager,
+                );
+              }
             }
             return const SizedBox.shrink();
           }).toList(),
@@ -141,7 +230,7 @@ class VerticalListWidget extends StatelessWidget {
     final isCircle = shape.toLowerCase() == 'circle';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -150,7 +239,7 @@ class VerticalListWidget extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, __) => const SizedBox(height: 4),
             itemBuilder: (ctx, i) {
               final map = items[i] as Map<String, dynamic>;
               final img = map['image']?.toString() ?? '';
@@ -159,6 +248,7 @@ class VerticalListWidget extends StatelessWidget {
               final description = (map['description'] ?? '').toString();
               final action = map['action'] as Map<String, dynamic>?;
 
+              final isCallPhone = action != null && (action['type'] == 'call_phone');
               return InkWell(
                 onTap: action != null
                     ? () => ActionsHandler.handle(
@@ -230,10 +320,14 @@ class VerticalListWidget extends StatelessWidget {
                         ),
                       ),
                       if (action != null)
-                        const Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: Icon(Icons.arrow_forward_ios_rounded,
-                              size: 18, color: Color(0xFF94A3B8)),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: isCallPhone
+                              ? IconButton(
+                                  icon: const Icon(Icons.call, color: Colors.green, size: 22),
+                                  onPressed: () => ActionsHandler.handle(action, context, parentRefresh: onNavigateRefresh),
+                                )
+                              : const Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Color(0xFF94A3B8)),
                         ),
                     ],
                   ),
@@ -317,6 +411,7 @@ class VerticalListWidget extends StatelessWidget {
       );
     }
 
+    // Restore previous implementation using Image.network
     return Image.network(
       cleanUrl,
       width: size,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/actions_handler.dart';
+import 'video_player_widget.dart';
 
 class FbPostCardWidget extends StatelessWidget {
   final Map<String, dynamic> widgetData;

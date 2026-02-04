@@ -22,7 +22,10 @@ class HorizontalListWidget extends StatelessWidget {
     final style = widgetData['style'] as Map<String, dynamic>?;
     final shape = style?['shape']?.toString() ?? 'circle';
     final styleHeight = (style?['height'] as num?)?.toDouble();
-    final styleWidth = (style?['width'] as num?)?.toDouble();
+    // Support 'match_parent' for width
+    final styleWidth = style?['width'] == 'match_parent'
+      ? double.infinity
+      : (style?['width'] as num?)?.toDouble();
     final styleFit = style?['fit']?.toString();
     
     // Container height: use style height if provided, else default
@@ -128,7 +131,7 @@ class HorizontalListWidget extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -186,49 +189,38 @@ class HorizontalListWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Container(
-                            width: isCircle ? imageHeight : itemWidth,
-                            height: imageHeight,
-                            decoration: BoxDecoration(
-                              shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-                              borderRadius: isCircle ? null : BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF6366F1).withOpacity(0.2),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                            child: isCircle
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: const Color(0xFFE2E8F0),
-                                        width: 3,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: ClipOval(
-                                      child: _buildImage(img, imageHeight, boxFit),
-                                    ),
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                          color: const Color(0xFFE2E8F0),
-                                          width: 3,
-                                        ),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: _buildImage(img, imageHeight, boxFit),
-                                    ),
-                                  ),
-                          ),
+                          SizedBox(
+  width: isCircle ? imageHeight : itemWidth,
+  height: imageHeight,
+  child: isCircle
+      ? Container(
+          decoration: BoxDecoration(
+            // color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: const Color(0xFFE2E8F0),
+              // width: 2,
+            ),
+          ),
+          child: ClipOval(
+            child: _buildImage(img, imageHeight, boxFit),
+          ),
+        )
+      : ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: const Color(0xFFE2E8F0),
+                // width: 2,
+              ),
+            ),
+            child: _buildImage(img, imageHeight, boxFit),
+          ),
+        ),
+),
+
                           if (itemTitle.isNotEmpty)
                             Flexible(
                               child: Padding(
@@ -307,38 +299,39 @@ class HorizontalListWidget extends StatelessWidget {
 
   Widget _buildImage(String url, double size, BoxFit fit) {
     if (url.isEmpty) return _placeholder(size: size);
-    
+
     // Sanitize URL
     final cleanUrl = _sanitizeUrl(url);
     if (cleanUrl.isEmpty) return _placeholder(size: size);
-    
+
     // Check if SVG by file extension only (faster and more reliable)
     final isSvg = cleanUrl.toLowerCase().endsWith('.svg');
-    
+
     if (isSvg) {
       return Padding(
         padding: const EdgeInsets.all(16),
         child: SvgPicture.network(
           cleanUrl,
-          fit: fit == BoxFit.cover ? BoxFit.contain : fit,
+          fit: fit,
           placeholderBuilder: (context) => _placeholder(size: size),
         ),
       );
     }
-    
-    // For regular images (PNG, JPG, etc.) - use cached image
+
+    // For regular images (PNG, JPG, etc.) - always use BoxFit.cover for best appearance
     return CachedNetworkImage(
       imageUrl: cleanUrl,
       width: size,
       height: size,
       fit: fit,
+      filterQuality: FilterQuality.high, // Improve image quality
       placeholder: (context, url) => _placeholder(size: size),
       errorWidget: (context, url, error) {
         print('Image load error for $cleanUrl: $error');
         return _errorIcon(size: size);
       },
       fadeInDuration: const Duration(milliseconds: 200),
-      memCacheWidth: size.toInt(),
+      // memCacheWidth: size.toInt(),
     );
   }
 

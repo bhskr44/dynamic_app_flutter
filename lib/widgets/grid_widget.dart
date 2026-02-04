@@ -20,7 +20,14 @@ class GridWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = widgetData['title']?.toString();
     final items = (widgetData['items'] as List<dynamic>?) ?? [];
-    final columns = (widgetData['columns'] as num?)?.toInt() ?? 2;
+    int columns = 2;
+    if (widgetData.containsKey('columns')) {
+      columns = (widgetData['columns'] as num?)?.toInt() ?? 2;
+    } else if (widgetData.containsKey('column')) {
+      columns = (widgetData['column'] as num?)?.toInt() ?? 2;
+    }
+
+
     final aspectRatio = (widgetData['aspectRatio'] as num?)?.toDouble() ?? 0.8;
     final style = widgetData['style'] as Map<String, dynamic>? ?? {};
     final displayTitle = widgetData['display_title'] ?? true;

@@ -1,6 +1,6 @@
 // filepath: lib/main.dart
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'screens/dynamic_screen.dart';
 import 'core/cart_service.dart';
 import 'core/api_service.dart';
 import 'core/app_config.dart';
@@ -23,7 +23,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // Splash screen API - loads configuration and navigates to home
-  static const String splashApi = 'http://10.177.48.175:8000/api/app-screens/splash-screen';
+  static const String splashApi =  'https://fab4f7059a95.ngrok-free.app/api/app-screens/splash-screen';
   final appConfig = AppConfig();
 
   @override
@@ -35,6 +35,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _loadAppConfig() async {
     try {
       final data = await ApiService.fetchJson(splashApi);
+      print('API Response: ' + data.toString());
       final appName = data['app_name']?.toString();
       final appLogo = data['app_logo']?.toString();
       
@@ -118,7 +119,7 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
-      home: SplashScreen(apiUrl: splashApi),
+      home: DynamicScreen(apiUrl: splashApi),
     );
   }
 }
