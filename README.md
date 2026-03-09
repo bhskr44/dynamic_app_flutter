@@ -1,5 +1,23 @@
 # Dynamic App Flutter
 
+Build complete Flutter apps directly from JSON APIs.
+
+Dynamic App Flutter is a **server-driven UI framework for Flutter** that allows you to control the entire app layout, widgets, and actions from your backend.
+
+No need to publish app updates for UI changes.
+
+Perfect for:
+- E-commerce apps
+- CMS driven apps
+- SaaS dashboards
+- Admin panels
+- Educational apps
+- Content platforms
+
+The server sends JSON and the Flutter app renders the UI dynamically.
+
+
+
 **A powerful, server-driven Flutter application that builds dynamic UIs from JSON APIs** — Perfect for building adaptable apps without constant updates. Create anything from simple content apps to full-featured e-commerce platforms, all controlled by your server.
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter)](https://flutter.dev)
